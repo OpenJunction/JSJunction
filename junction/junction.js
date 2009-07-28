@@ -89,6 +89,18 @@ var JunctionMaker = function()
 						if ((type == "groupchat" || type == "chat") && body) {
 							try {
 								var content = JSON.parse(body.nodeValue);
+								if (content.jx && content.jx.targetRole) {
+									if (!actor.roles) {
+										return true;
+									}
+									for (i=0;i<actor.roles.length;i++) {
+										if (actor.roles[i] == content.jx.targetRole) {
+											actor.onMessageReceived(content);
+											return true;
+										}
+									}
+									return true;
+								}
 								actor.onMessageReceived(content);
 							} catch (e) {
 								return true;
