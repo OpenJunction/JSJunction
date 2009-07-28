@@ -46,6 +46,21 @@ var JunctionMaker = function()
 
 		function onConnect(status){
 			if (status == Strophe.Status.CONNECTED) {
+				var old = window.onunload;
+				var discon = 
+					function() {
+						alert('exit stage left');
+						_xmppConnection.disconnect();
+					};
+				if (typeof window.onunload != 'function') {
+					window.onunload = discon;
+				} else {
+					window.onunload = function() {
+						old();
+						discon();
+					}
+				}
+
 				_xmppConnection.send(
 					$pres({to: MUC_ROOM + "@" + MUC_COMPONENT + "/" + _actorID})
 					  .c("x", {xmlns: "http://jabber.org/protocol/muc"}).tree());
@@ -64,7 +79,7 @@ var JunctionMaker = function()
 						var body = msg.getElementsByTagName("body")[0].childNodes[0];
 						//var user = Strophe.getResourceFromJid(from);
 
-						if (type == "groupchat" && body) {
+						if ((type == "groupchat" || type == "chat") && body) {
 							try {
 								var content = JSON.parse(body.nodeValue);
 								actor.onMessageReceived(content);
@@ -90,10 +105,34 @@ var JunctionMaker = function()
 			  getSessionID : function() { return _sessionID },
 
 			  sendMessageToActor: function (actorID, msg) {
-
+				if (!(typeof msg == 'object')) {
+					msg = {v:msg};
+				}
+				msg = JSON.stringify(msg);
+				_xmppConnection.send($msg({to: MUC_ROOM + "@" + MUC_COMPONENT + '/' + actorID, 
+					type: "chat", id: _xmppConnection.getUniqueId
+				}).c("body")
+				  .t(msg).up()
+				  .c("nick", {xmlns: "http://jabber.org/protocol/nick"})
+				  .t(_actorID).tree())
 			  },
 			  sendMessageToRole: function (role, msg) {
-
+				if (!(typeof msg == 'object')) {
+					msg = {v:msg};
+				}
+				if (msg.jx) {
+					msg.jx.targetRole = role;
+				} else {
+					msg.jx = { targetRole: role };
+				}
+				msg = JSON.stringify(msg);
+				_xmppConnection.send($msg({to: MUC_ROOM + "@" + MUC_COMPONENT, 
+					type: "groupchat", id: _xmppConnection.getUniqueId
+				}).c("body")
+				  .t(msg).up()
+				  .c("nick", {xmlns: "http://jabber.org/protocol/nick"})
+				  .t(_actorID).tree())
+			  
 			  },
 			  sendMessageToSession: function (msg) {
 				if (!(typeof msg == 'object')) {

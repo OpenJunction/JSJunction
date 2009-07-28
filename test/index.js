@@ -4,13 +4,15 @@ $(function() {
 		  ,host:'prpl.stanford.edu'
 		};
   var actor = {
-		onConnect: 
+	          roles: ['role1','role2']
+		, onConnect: 
 		  function() {
 			this.junction.sendMessageToSession({msg:'did it!!!'});
 		 }
 
 		, onMessageReceived: function(msg) {
 			alert('I got: ' + msg.msg);
+			this.junction.sendMessageToActor('bjdodson',{msg:"hey man"});
 		 }
 
 
