@@ -56,7 +56,6 @@ var JunctionMaker = function()
 				var old = window.onunload;
 				var discon = 
 					function() {
-						alert('exit stage left');
 						_xmppConnection.disconnect();
 					};
 				if (typeof window.onunload != 'function') {
