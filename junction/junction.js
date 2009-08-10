@@ -84,7 +84,7 @@ var JunctionMaker = function()
 
 						var from = msg.getAttribute('from');
 						var i = from.lastIndexOf('/');
-						if (i > 0) {
+						if (i >= 0) {
 							from = from.substring(i+1);
 						}
 						var type = msg.getAttribute('type');
