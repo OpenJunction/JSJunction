@@ -18,11 +18,13 @@ var JunctionMaker = function()
 			var _sessionID = _activityDesc.sessionID;
 		} else {
 			var _sessionID = randomUUID();
+			_activityDesc.sessionID = _sessionID;
 		}
 		if (_activityDesc.host) {
 			_hostURL = _activityDesc.host;
 		} else {
 			_hostURL = "prpl.stanford.edu";
+			_activityDesc.host = _hostURL;
 		}
 		var _actorID = randomUUID();
 
@@ -80,10 +82,17 @@ var JunctionMaker = function()
 				if (actor && actor.onMessageReceived) {
 					var f = function(msg) {
 
-						//var from = msg.getAttribute('from');
+						var from = msg.getAttribute('from');
+						var i = from.lastIndexOf('/');
+						if (i > 0) {
+							from = from.substring(i+1);
+						}
 						var type = msg.getAttribute('type');
 						var body = msg.getElementsByTagName("body")[0].childNodes[0];
 						//var user = Strophe.getResourceFromJid(from);
+
+						var jxheader = new Object();
+						jxheader.from = from;
 
 						if ((type == "groupchat" || type == "chat") && body) {
 							try {
@@ -94,13 +103,13 @@ var JunctionMaker = function()
 									}
 									for (i=0;i<actor.roles.length;i++) {
 										if (actor.roles[i] == content.jx.targetRole) {
-											actor.onMessageReceived(content);
+											actor.onMessageReceived(content,jxheader);
 											return true;
 										}
 									}
 									return true;
 								}
-								actor.onMessageReceived(content);
+								actor.onMessageReceived(content,jxheader);
 							} catch (e) {
 								return true;
 							}
@@ -177,10 +186,13 @@ var JunctionMaker = function()
 			  getInvitationQR : function () {
 				var url;
 				var size;
+    				var content = _activityDesc;
+
 				if (arguments.length == 0) {
 					url = _hostURL + "?session="+_sessionID;
 				} else if (arguments[0] != false) {
 					url = _hostURL + "?session="+_sessionID+"&requestedRole="+arguments[0];
+					content.requestedRole = arguments[0];
 				}
 				if (arguments.length == 2) {
 					size = arguments[1]+'x'+arguments[1];
@@ -188,7 +200,8 @@ var JunctionMaker = function()
 					size = '250x250';
 				}
 
-				return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent('{jxref:"'+url+'"}');
+				//return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent('{jxref:"'+url+'"}');
+				return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(JSON.stringify(content));
 				
 			  },
 
