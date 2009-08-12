@@ -14,16 +14,14 @@ var JunctionMaker = function()
 
 	function Junction(activity,actor) {
 		var _activityDesc = activity;
-		if (_activityDesc.sessionID) {
-			var _sessionID = _activityDesc.sessionID;
+		if (activity.sessionID) {
+			var _sessionID = activity.sessionID;
 		} else {
 			var _sessionID = randomUUID();
-			_activityDesc.sessionID = _sessionID;
 		}
-		if (_activityDesc.host) {
-			_hostURL = _activityDesc.host;
+		if (activity.host) {
+			_hostURL = activity.host;
 		} else {
-			_activityDesc.host = _hostURL;
 		}
 		var _actorID = randomUUID();
 
@@ -185,7 +183,10 @@ var JunctionMaker = function()
 			  getInvitationQR : function () {
 				var url;
 				var size;
-    				var content = _activityDesc;
+    				var content = new Object();
+				content.sessionID = _sessionID;
+				content.host = _hostURL;
+				content.ad = _activityDesc;
 
 				if (arguments.length == 0) {
 					url = _hostURL + "?session="+_sessionID;
@@ -223,8 +224,8 @@ var JunctionMaker = function()
 			return {
 				newJunction: function()
 				{
-					if (!arguments[0].host && _hostURL) {
-						arguments[0].host = _hostURL;
+					if (!arguments[0].host && !_hostURL) {
+						return false;
 					}
 					if (arguments.length == 1) {
 						return Junction(arguments[0],false);
