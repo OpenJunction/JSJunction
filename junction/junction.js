@@ -23,7 +23,6 @@ var JunctionMaker = function()
 		if (_activityDesc.host) {
 			_hostURL = _activityDesc.host;
 		} else {
-			_hostURL = "prpl.stanford.edu";
 			_activityDesc.host = _hostURL;
 		}
 		var _actorID = randomUUID();
@@ -217,11 +216,16 @@ var JunctionMaker = function()
 		{
 			if (arguments.length == 1) {
 				_hostURL = arguments[0];
+			} else {
+				_hostURL = false;
 			}
 
 			return {
 				newJunction: function()
 				{
+					if (!arguments[0].host && _hostURL) {
+						arguments[0].host = _hostURL;
+					}
 					if (arguments.length == 1) {
 						return Junction(arguments[0],false);
 					} else if (arguments.length == 2) {
