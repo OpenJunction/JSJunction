@@ -2,7 +2,9 @@ var JunctionMaker = function()
 {
 	var _hostURL;
 
-	
+	var _sessionID;
+	var _isActivityCreator = false;
+
 	function getXMPPConnection(onConnect) {
 		var _jid='junction';
 		var _pw='junction';
@@ -15,9 +17,10 @@ var JunctionMaker = function()
 	function Junction(activity,actor) {
 		var _activityDesc = activity;
 		if (activity.sessionID) {
-			var _sessionID = activity.sessionID;
+			_sessionID = activity.sessionID;
 		} else {
-			var _sessionID = randomUUID();
+			_sessionID = randomUUID();
+			_isActivityCreator = true;
 		}
 		if (activity.host) {
 			_hostURL = activity.host;
@@ -42,8 +45,14 @@ var JunctionMaker = function()
 					  .c("query", {xmlns: "http://jabber.org/protocol/muc#owner"})
 					  .c("x", {xmlns: "jabber:x:data", type:"submit"}).tree();
 				_xmppConnection.send(form);
-				if (actor && actor.onConnect) {
-					actor.onConnect();
+
+				if (actor) {
+					if (_isActivityCreator && actor.onActivityCreate) {
+						actor.onActivityCreate();
+					}
+					if (actor.onActivityJoin) {
+						actor.onActivityJoin();
+					}
 				}
 				return false;
 			}
