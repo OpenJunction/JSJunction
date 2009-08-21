@@ -183,25 +183,25 @@ var JunctionMaker = function()
 			  getInvitationURL : function () {
 				var url = '';
 				if (arguments.length == 0) {
-					url = _hostURL + "?session="+_sessionID;
+					url = 'junction://' + _hostURL + "/" + _sessionID;
 				} else if (arguments[0] != false) {
-					url = _hostURL + "?session="+_sessionID+"&requestedRole="+arguments[0];
+					url = 'junction://' + _hostURL + "/" + _sessionID + "?requestedRole="+arguments[0];
 				}
 				return url;
 			  },
 			  getInvitationQR : function () {
 				var url;
 				var size;
-    				var content = new Object();
-				content.sessionID = _sessionID;
-				content.host = _hostURL;
-				content.ad = _activityDesc;
+    				//var content = new Object();
+				//content.sessionID = _sessionID;
+				//content.host = _hostURL;
+				//content.ad = _activityDesc;
 
 				if (arguments.length == 0) {
-					url = _hostURL + "?session="+_sessionID;
+					url = 'junction://' + _hostURL + "/" + _sessionID;
 				} else if (arguments[0] != false) {
-					url = _hostURL + "?session="+_sessionID+"&requestedRole="+arguments[0];
-					content.requestedRole = arguments[0];
+					url = 'junction://' + _hostURL + "/" + _sessionID + "?requestedRole="+arguments[0];
+					//content.requestedRole = arguments[0];
 				}
 				if (arguments.length == 2) {
 					size = arguments[1]+'x'+arguments[1];
@@ -210,7 +210,8 @@ var JunctionMaker = function()
 				}
 
 				//return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent('{jxref:"'+url+'"}');
-				return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(JSON.stringify(content));
+				//return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(JSON.stringify(content));
+				return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(url);
 				
 			  },
 
