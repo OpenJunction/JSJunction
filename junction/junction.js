@@ -38,12 +38,16 @@ var JunctionMaker = function()
 
 			// TODO: build up roster for room.
 			if (type == null && user == _actorID) {
-
+				var roomdesc=JSON.stringify(_activityDesc);
+				//alert(roomdesc);
 				// if I'm owner, unlock room
 				var form = $iq({to: MUC_ROOM + "@" + MUC_COMPONENT,
 						type: 'set'})
 					  .c("query", {xmlns: "http://jabber.org/protocol/muc#owner"})
-					  .c("x", {xmlns: "jabber:x:data", type:"submit"}).tree();
+					  .c("x", {xmlns: "jabber:x:data", type:"submit"})
+					  .c("field", {var: "muc#roomconfig_roomdesc"})
+					  .c("value").t(roomdesc).tree();
+
 				_xmppConnection.send(form);
 
 				if (actor) {
