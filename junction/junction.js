@@ -184,7 +184,7 @@ var JunctionMaker = function()
 				  .t(_actorID).tree())
 			  },
 
-			  getInvitationURL : function () {
+			  getInvitationURI : function () {
 				var url = '';
 				if (arguments.length == 0) {
 					url = 'junction://' + _hostURL + "/" + _sessionID;
@@ -238,6 +238,9 @@ var JunctionMaker = function()
 			return {
 				newJunction: function()
 				{
+					// if (args[0] starts with junction://) {
+						// get hostname, session
+						// extract activity info
 					if (!arguments[0].host && !_hostURL) {
 						return false;
 					}
@@ -250,6 +253,56 @@ var JunctionMaker = function()
 					} else {
 						return false;
 					}
+				}
+
+				// must use a callback since javascript is asynchronous
+				, activityDescriptionCallback: function(uri, cb) {
+					var parsed = parseUri(uri);
+					var switchboard = parsed.host;
+					var sessionID = parsed.path.substring(1);
+
+					var _room = sessionID;
+					var _component = 'conference.'+switchboard;
+
+					var _jid='junction';
+					var _pw='junction';
+					var connection = new Strophe.Connection('http://' + switchboard + '/http-bind');
+					//connection.rawOutput = function(data) { $('#raw').append('<br/><br/>OUT: '+data.replace(/</g,'&lt;').replace(/>/g,'&gt;')); }
+					//connection.rawInput = function(data) { $('#raw').append('<br/><br/>IN: '+data.replace(/</g,'&lt;').replace(/>/g,'&gt;')); }
+
+					var getInfo = function(a) {
+						var fields = a.getElementsByTagName('field');
+						for (i=0;i<fields.length;i++) {
+							if (fields[i].getAttribute('var') == 'muc#roominfo_description') {
+								var desc = fields[i].childNodes[0].childNodes[0].nodeValue; // get text of value
+								var json = JSON.parse(desc);
+								cb(json);
+								connection.disconnect();
+								return false;
+							}
+						}
+						
+						return true;
+					};
+
+					connection.connect(_jid,_pw, function(status){
+						if (status == Strophe.Status.CONNECTED) {
+							// get room info for sessionID
+
+							connection.send(
+							$iq({to: _room + "@" + _component, type: 'get'})
+							  .c("query", {xmlns: "http://jabber.org/protocol/disco#info"}).tree());
+
+
+							connection.addHandler(getInfo, 
+								'http://jabber.org/protocol/disco#info', 
+								null,
+								null,null,null); 
+
+					
+
+						}
+					});
 				}
 			};
 		}
@@ -295,3 +348,39 @@ function randomUUID() {
 
   return s.join('');
 }
+
+
+
+// parseUri 1.2.2
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+
+function parseUri (str) {
+	var	o   = parseUri.options,
+		m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+		uri = {},
+		i   = 14;
+
+	while (i--) uri[o.key[i]] = m[i] || "";
+
+	uri[o.q.name] = {};
+	uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+		if ($1) uri[o.q.name][$1] = $2;
+	});
+
+	return uri;
+};
+
+parseUri.options = {
+	strictMode: false,
+	key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+	q:   {
+		name:   "queryKey",
+		parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+	},
+	parser: {
+		strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+		loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+	}
+};
+
