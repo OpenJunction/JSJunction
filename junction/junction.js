@@ -16,15 +16,31 @@ var JunctionMaker = function()
 
 	function Junction(activity,actor) {
 		var _activityDesc = activity;
-		if (activity.sessionID) {
+		if (activity&&activity.sessionID) {
 			_sessionID = activity.sessionID;
 		} else {
-			_sessionID = randomUUID();
-			_isActivityCreator = true;
+			var query = parseUri(window.location).query;
+			if ((i = query.indexOf('jxsessionid=')) >= 0) {
+				_sessionID = query.substring(i+12);
+				if ((i=_sessionID.indexOf('&')) >= 0) {
+					_sessionID = _sessionID.substring(0,i);
+				}
+
+				if ((i = query.indexOf('jxswitchboard=')) >= 0) {
+					_hostURL = query.substring(i+14);
+					if ((i=_hostURL.indexOf('&')) >= 0) {
+						_hostURL = _hostURL.substring(0,i);
+					}
+				}
+			}  else {
+				_sessionID = randomUUID();
+				_isActivityCreator = true;
+			}
 		}
-		if (activity.host) {
+		if (activity&&activity.host) {
 			_hostURL = activity.host;
 		} else {
+
 		}
 		var _actorID = randomUUID();
 
