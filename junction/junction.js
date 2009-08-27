@@ -79,6 +79,7 @@ var JunctionMaker = function()
 			return true;
 		}
 
+
 		function onConnect(status){
 			if (status == Strophe.Status.CONNECTED) {
 				var old = window.onunload;
@@ -237,7 +238,7 @@ var JunctionMaker = function()
 
 			  getActorsForRole : function() { },
 			  getRoles : function() { },
-
+			  disconnect : function() { _xmppConnection.disconnect(); },
 			};
 
 	}
@@ -254,9 +255,13 @@ var JunctionMaker = function()
 			return {
 				newJunction: function()
 				{
-					// if (args[0] starts with junction://) {
-						// get hostname, session
-						// extract activity info
+					if (typeof(arguments[0])=='string' && arguments[0].indexOf('://') > 0) {
+						parsed = parseUri(arguments[0]);
+						// hack for legacy:
+						var activity = { host: parsed.host };
+						activity.sessionID = parsed.path.substring(1);
+						arguments[0] = activity;
+					}
 					if (!arguments[0].host && !_hostURL) {
 						return false;
 					}
@@ -265,6 +270,7 @@ var JunctionMaker = function()
 					} else if (arguments.length == 2) {
 						var jx = Junction(arguments[0],arguments[1]);
 						arguments[1].junction = jx;
+						arguments[1].leave = function() { jx.disconnect(); };
 						return jx;
 					} else {
 						return false;
@@ -317,6 +323,46 @@ var JunctionMaker = function()
 
 					
 
+						}
+					});
+				}
+
+				, inviteActorService: function(uri) {
+					this.activityDescriptionCallback(uri, function(ad) {
+						var role = '';
+						if ((d = uri.indexOf('requestedRole=')) >= 0) {
+							role = uri.substring(d+14);
+							if ((d=role.indexOf('&'))>=0) {
+								role = role.substring(0,d);
+							}
+						}
+						if (role == '' || !ad.roles) return;
+						for (i=0;i<ad.roles.length;i++) {
+							if (ad.roles[i].role==role) {
+								platforms = ad.roles[i].platforms;
+								for (j=0;j<platforms.length;j++){
+									if (platforms[j].platform=='jxservice') {
+										actor = {
+												serviceName: platforms[j].serviceName,
+												onActivityJoin:
+													function() {
+														invite = {
+															activity: uri,
+															serviceName: this.serviceName
+														};
+														this.junction.sendMessageToSession(invite);
+													}
+											}
+
+									var remoteURI = 'junction://';
+									if (platforms[j].switchboard) remoteURI += platforms[j].switchboard;
+									else remoteURI += parseUri(uri).host;
+									remoteURI += '/jxservice';
+
+										JunctionMaker.create().newJunction(remoteURI, actor);
+									}
+								}
+							}
 						}
 					});
 				}
