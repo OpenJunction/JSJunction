@@ -210,8 +210,26 @@ var JunctionMaker = function()
 				}
 				return url;
 			  },
-			  getInvitationForWeb : function() { // TODO: add role parameter
-				var url=document.location.toString();
+			  getInvitationForWeb : function(role) { // TODO: add role parameter
+								 // TODO: AcSpec should be { roles: { "player": { ... } } }
+				var url='';
+				if (role && _activityDesc.roles) {
+					for (i=0;i<_activityDesc.roles.length;i++) {
+						if (_activityDesc.roles[i].role==role) {
+							var plat=_activityDesc.roles[i].platforms;
+							for (j=0;j<plat.length;j++) {
+								if (plat[j].platform=='web') {
+									url=plat[j].url.toString();
+									break;
+								}
+							}
+							break;
+						}
+					}
+					if (url=='') url=document.location.toString(); // return false?
+				} else {
+					url=document.location.toString();
+				}
 				var params = 'jxsessionid='+_sessionID+'&jxswitchboard='+_hostURL;
 				if (url.indexOf('?')>0) {
 					return url + '&' + params;
