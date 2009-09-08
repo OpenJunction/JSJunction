@@ -210,6 +210,15 @@ var JunctionMaker = function()
 				}
 				return url;
 			  },
+			  getInvitationForWeb : function() { // TODO: add role parameter
+				var url=document.location.toString();
+				var params = 'jxsessionid='+_sessionID+'&jxswitchboard='+_hostURL;
+				if (url.indexOf('?')>0) {
+					return url + '&' + params;
+				} else {
+					return url + '?' + params;
+				}
+			  },
 			  getInvitationQR : function () {
 				var url;
 				var size;
