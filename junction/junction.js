@@ -62,7 +62,11 @@ var JunctionMaker = function()
 					  .c("query", {xmlns: "http://jabber.org/protocol/muc#owner"})
 					  .c("x", {xmlns: "jabber:x:data", type:"submit"})
 					  .c("field", {var: "muc#roomconfig_roomdesc"})
-					  .c("value").t(roomdesc).tree();
+					  .c("value").t(roomdesc)
+ 					  .up().up()
+					  .c("field", {var: "muc#roomconfig_whois"})
+					  .c("value").t("moderators")
+					  .tree();
 
 				_xmppConnection.send(form);
 
