@@ -66,6 +66,9 @@ var JunctionMaker = function()
  					  .up().up()
 					  .c("field", {var: "muc#roomconfig_whois"})
 					  .c("value").t("moderators")
+					  .up().up()
+					  .c("field", {var: "muc#roomconfig_publicroom"})
+					  .c("value").t("0")
 					  .tree();
 
 				_xmppConnection.send(form);
