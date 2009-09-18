@@ -74,6 +74,7 @@ var JunctionMaker = function()
 				_xmppConnection.send(form);
 
 				if (actor) {
+					actor.actorID = _actorID;
 					if (_isActivityCreator && actor.onActivityCreate) {
 						actor.onActivityCreate();
 					}
