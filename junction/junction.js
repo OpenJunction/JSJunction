@@ -2,9 +2,6 @@ var JunctionMaker = function()
 {
 	var _hostURL;
 
-	var _sessionID;
-	var _isActivityCreator = false;
-
 	function getXMPPConnection(onConnect) {
 		var _jid='junction';
 		var _pw='junction';
@@ -15,6 +12,9 @@ var JunctionMaker = function()
 	}
 
 	function Junction(activity,actor) {
+		var _sessionID;
+		var _isActivityCreator = false;
+
 		var _activityDesc = activity;
 		if (activity&&activity.sessionID) {
 			_sessionID = activity.sessionID;
@@ -33,7 +33,7 @@ var JunctionMaker = function()
 					}
 				}
 			}  else {
-				_sessionID = randomUUID();
+				_sessionID = randomUUID(); 
 				_isActivityCreator = true;
 			}
 		}
