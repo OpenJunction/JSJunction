@@ -61,13 +61,13 @@ var JunctionMaker = function()
 						type: 'set'})
 					  .c("query", {xmlns: "http://jabber.org/protocol/muc#owner"})
 					  .c("x", {xmlns: "jabber:x:data", type:"submit"})
-					  .c("field", {var: "muc#roomconfig_roomdesc"})
+					  .c("field", {"var": "muc#roomconfig_roomdesc"})
 					  .c("value").t(roomdesc)
  					  .up().up()
-					  .c("field", {var: "muc#roomconfig_whois"})
+					  .c("field", {"var": "muc#roomconfig_whois"})
 					  .c("value").t("moderators")
 					  .up().up()
-					  .c("field", {var: "muc#roomconfig_publicroom"})
+					  .c("field", {"var": "muc#roomconfig_publicroom"})
 					  .c("value").t("0")
 					  .tree();
 
@@ -304,8 +304,10 @@ var JunctionMaker = function()
 						return Junction(arguments[0],false);
 					} else if (arguments.length == 2) {
 						var jx = Junction(arguments[0],arguments[1]);
-						arguments[1].junction = jx;
-						arguments[1].leave = function() { jx.disconnect(); };
+						if (arguments[1]){
+							arguments[1].junction = jx;
+							arguments[1].leave = function() { jx.disconnect(); };
+						}
 						return jx;
 					} else {
 						return false;
