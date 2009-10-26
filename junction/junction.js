@@ -90,15 +90,15 @@ var JunctionMaker = function()
 
 		function onConnect(status){
 			if (status == Strophe.Status.CONNECTED) {
-				var old = window.onunload;
+				var old = window.onbeforeunload;
 				var discon = 
 					function() {
 						_xmppConnection.disconnect();
 					};
-				if (typeof window.onunload != 'function') {
-					window.onunload = discon;
+				if (typeof window.onbeforeunload != 'function') {
+					window.onbeforeunload = discon;
 				} else {
-					window.onunload = function() {
+					window.onbeforeunload = function() {
 						old();
 						discon();
 					}
