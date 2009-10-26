@@ -1275,7 +1275,9 @@ Strophe.Request.prototype = {
     _newXHR: function ()
     {
         var xhr = null;
-        if (window.XMLHttpRequest) {
+	if (typeof(flensed)=='object' && flensed.flXHR) {
+	    xhr = new flensed.flXHR({});
+        } else if (window.XMLHttpRequest) {
             xhr = new XMLHttpRequest();
             if (xhr.overrideMimeType) {
                 xhr.overrideMimeType("text/xml");
