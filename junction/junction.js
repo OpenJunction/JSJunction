@@ -11,7 +11,8 @@ var JunctionMaker = function()
 		return connection;
 	}
 
-	function Junction(activity,actor) {
+	function Junction(maker, activity,actor) {
+		var _jm = maker;
 		var _sessionID;
 		var _isActivityCreator = false;
 
@@ -72,6 +73,21 @@ var JunctionMaker = function()
 					  .tree();
 
 				_xmppConnection.send(form);
+
+				if (_isActivityCreator) {
+					var roles = _activityDesc.roles;
+					if (typeof(roles) == 'object' && roles.length > 0) {
+						for (var r=0;r<roles.length;r++){
+							var plats = roles[r].platforms;
+							for (var p=0;p<plats.length;p++){
+								if('jxservice'==plats[p].platform){
+									var uri = _jx.getInvitationURI(roles[r].role);
+									_jm.inviteServiceForRole(uri, _activityDesc,roles[r].role);
+								}
+							}
+						}
+					}
+				}
 
 				if (actor) {
 					actor.actorID = _actorID;
@@ -162,7 +178,7 @@ var JunctionMaker = function()
 
 		var _xmppConnection = getXMPPConnection(onConnect);
 
-		return  {
+		var _jx =  {
 			  activityDesc : _activityDesc,
 			  getSessionID : function() { return _sessionID },
 
@@ -275,6 +291,7 @@ var JunctionMaker = function()
 			  getRoles : function() { },
 			  disconnect : function() { _xmppConnection.disconnect(); },
 			};
+		return _jx;
 
 	}
 
@@ -301,9 +318,9 @@ var JunctionMaker = function()
 						return false;
 					}
 					if (arguments.length == 1) {
-						return Junction(arguments[0],false);
+						return Junction(this,arguments[0],false);
 					} else if (arguments.length == 2) {
-						var jx = Junction(arguments[0],arguments[1]);
+						var jx = Junction(this,arguments[0],arguments[1]);
 						if (arguments[1]){
 							arguments[1].junction = jx;
 							arguments[1].leave = function() { jx.disconnect(); };
@@ -328,7 +345,6 @@ var JunctionMaker = function()
 					var connection = new Strophe.Connection('http://' + switchboard + '/http-bind');
 					//connection.rawOutput = function(data) { $('#raw').append('<br/><br/>OUT: '+data.replace(/</g,'&lt;').replace(/>/g,'&gt;')); }
 					//connection.rawInput = function(data) { $('#raw').append('<br/><br/>IN: '+data.replace(/</g,'&lt;').replace(/>/g,'&gt;')); }
-
 					var getInfo = function(a) {
 						var fields = a.getElementsByTagName('field');
 						for (i=0;i<fields.length;i++) {
@@ -347,7 +363,6 @@ var JunctionMaker = function()
 					connection.connect(_jid,_pw, function(status){
 						if (status == Strophe.Status.CONNECTED) {
 							// get room info for sessionID
-
 							connection.send(
 							$iq({to: _room + "@" + _component, type: 'get'})
 							  .c("query", {xmlns: "http://jabber.org/protocol/disco#info"}).tree());
@@ -364,18 +379,10 @@ var JunctionMaker = function()
 					});
 				}
 
-				, inviteActorService: function(uri) {
-					this.activityDescriptionCallback(uri, function(ad) {
-						var role = '';
-						if ((d = uri.indexOf('requestedRole=')) >= 0) {
-							role = uri.substring(d+14);
-							if ((d=role.indexOf('&'))>=0) {
-								role = role.substring(0,d);
-							}
-						}
+				, inviteServiceForRole: function(uri, ad, role) {
 						if (role == '' || !ad.roles) return;
 						for (i=0;i<ad.roles.length;i++) {
-							if (ad.roles[i].role==role) {
+							if (ad.roles[i].role==role) { 
 								platforms = ad.roles[i].platforms;
 								for (j=0;j<platforms.length;j++){
 									if (platforms[j].platform=='jxservice') {
@@ -383,10 +390,10 @@ var JunctionMaker = function()
 												serviceName: platforms[j].serviceName,
 												onActivityJoin:
 													function() {
-														invite = {
-															activity: uri,
-															serviceName: this.serviceName
-														};
+														var invite = {activity: uri,
+															      serviceName: this.serviceName
+															};
+														alert('going');
 														this.junction.sendMessageToSession(invite);
 													}
 											}
@@ -401,7 +408,10 @@ var JunctionMaker = function()
 								}
 							}
 						}
-					});
+					}
+	
+				, inviteActorService: function(uri) {
+					this.activityDescriptionCallback(uri, inviteServiceForRole(uri,desc,role));
 				}
 			};
 		}
