@@ -230,7 +230,7 @@ var JunctionMaker = function()
 				if (arguments.length == 0) {
 					url = 'junction://' + _hostURL + "/" + _sessionID;
 				} else if (arguments[0] != false) {
-					url = 'junction://' + _hostURL + "/" + _sessionID + "?requestedRole="+arguments[0];
+					url = 'junction://' + _hostURL + "/" + _sessionID + "?role="+arguments[0];
 				}
 				return url;
 			  },
@@ -272,8 +272,8 @@ var JunctionMaker = function()
 				if (arguments.length == 0) {
 					url = 'junction://' + _hostURL + "/" + _sessionID;
 				} else if (arguments[0] != false) {
-					url = 'junction://' + _hostURL + "/" + _sessionID + "?requestedRole="+arguments[0];
-					//content.requestedRole = arguments[0];
+					url = 'junction://' + _hostURL + "/" + _sessionID + "?role="+arguments[0];
+					//content.role = arguments[0];
 				}
 				if (arguments.length == 2) {
 					size = arguments[1]+'x'+arguments[1];
