@@ -296,7 +296,7 @@ var JunctionMaker = function()
 	}
 
 	return {
-		create: function()
+		getInstance: function()
 		{
 			if (arguments.length == 1) {
 				_hostURL = arguments[0];
@@ -413,7 +413,7 @@ var JunctionMaker = function()
 									else remoteURI += parseUri(uri).host;
 									remoteURI += '/jxservice';
 
-										JunctionMaker.create().newJunction(remoteURI, actor);
+										JunctionMaker.getInstance().newJunction(remoteURI, actor);
 									}
 								}
 							}
