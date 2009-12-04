@@ -10,7 +10,7 @@
   </parent>
   <groupId>edu.stanford.prpl.junction</groupId>
   <artifactId>JSJunction</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>JSJunction</name>
   <description>javascript junction manager for android</description>
@@ -19,19 +19,7 @@
     <android-version>1.5</android-version>
   </properties>
 
-  <dependencies>
-    <dependency>
-    	<groupId>edu.stanford.prpl.junction</groupId>
-    	<artifactId>Junction</artifactId>
-    	<version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>android</groupId>
-      <artifactId>android</artifactId>
-      <version>${android-version}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+
   <build>
     <plugins>
       <plugin>
