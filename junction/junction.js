@@ -324,6 +324,16 @@ var JunctionMaker = function()
 						if (arguments[1]){
 							arguments[1].junction = jx;
 							arguments[1].leave = function() { jx.disconnect(); };
+							arguments[1].sendMessageToActor = function (actor,msg) {
+									this.junction.sendMessageToActor(actor,msg);
+								};
+							arguments[1].sendMessageToRole = function (role,msg) {
+									this.junction.sendMessageToActor(role,msg);
+								};
+							arguments[1].sendMessageToSession = function (msg) {
+									this.junction.sendMessageToActor(msg);
+								};
+								
 						}
 						return jx;
 					} else {
