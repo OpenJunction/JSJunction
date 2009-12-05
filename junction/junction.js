@@ -328,10 +328,10 @@ var JunctionMaker = function()
 									this.junction.sendMessageToActor(actor,msg);
 								};
 							arguments[1].sendMessageToRole = function (role,msg) {
-									this.junction.sendMessageToActor(role,msg);
+									this.junction.sendMessageToRole(role,msg);
 								};
 							arguments[1].sendMessageToSession = function (msg) {
-									this.junction.sendMessageToActor(msg);
+									this.junction.sendMessageToSession(msg);
 								};
 								
 						}
