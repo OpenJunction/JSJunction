@@ -17,32 +17,32 @@ var JunctionMaker = function()
 		var _isActivityCreator = false;
 
 		var _activityDesc = activity;
-		if (activity&&activity.sessionID) {
-			_sessionID = activity.sessionID;
-		} else {
-			var query = parseUri(window.location).query;
-			if ((i = query.indexOf('jxsessionid=')) >= 0) {
-				_sessionID = query.substring(i+12);
-				if ((i=_sessionID.indexOf('&')) >= 0) {
-					_sessionID = _sessionID.substring(0,i);
-				}
 
-				if ((i = query.indexOf('jxswitchboard=')) >= 0) {
-					_hostURL = query.substring(i+14);
-					if ((i=_hostURL.indexOf('&')) >= 0) {
-						_hostURL = _hostURL.substring(0,i);
-					}
+		var query = parseUri(window.location).query;
+		if ((i = query.indexOf('jxsessionid=')) >= 0) {
+			_sessionID = query.substring(i+12);
+			if ((i=_sessionID.indexOf('&')) >= 0) {
+				_sessionID = _sessionID.substring(0,i);
+			}
+			if ((i = query.indexOf('jxswitchboard=')) >= 0) {
+				_hostURL = query.substring(i+14);
+				if ((i=_hostURL.indexOf('&')) >= 0) {
+					_hostURL = _hostURL.substring(0,i);
 				}
-			}  else {
-				_sessionID = randomUUID(); 
-				_isActivityCreator = true;
 			}
 		}
-		if (activity&&activity.host) {
-			_hostURL = activity.host;
+		else if (activity) {
+			if (activity.sessionID) {
+				_sessionID = activity.sessionID;
+			}
+			if (activity.host) {
+				_hostURL = activity.host;
+			}
 		} else {
-
+			_sessionID = randomUUID(); 
+			_isActivityCreator = true;
 		}
+
 		var _actorID = randomUUID();
 
 		var MUC_ROOM = _sessionID;
@@ -68,8 +68,8 @@ var JunctionMaker = function()
 					  .c("field", {"var": "muc#roomconfig_whois"})
 					  .c("value").t("moderators")
 					  .up().up()
-					  .c("field", {"var": "muc#roomconfig_publicroom"})
-					  .c("value").t("0")
+					  //.c("field", {"var": "muc#roomconfig_publicroom"})
+					  //.c("value").t("0")
 					  .tree();
 
 				_xmppConnection.send(form);
