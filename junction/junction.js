@@ -76,14 +76,12 @@ var JunctionMaker = function()
 
 				if (_isActivityCreator) {
 					var roles = _activityDesc.roles;
-					if (typeof(roles) == 'object' && roles.length > 0) {
-						for (var r=0;r<roles.length;r++){
+					if (typeof(roles) == 'object') {
+						for (r in roles){
 							var plats = roles[r].platforms;
-							for (var p=0;p<plats.length;p++){
-								if('jxservice'==plats[p].platform){
-									var uri = _jx.getInvitationURI(roles[r].role);
-									_jm.inviteServiceForRole(uri, _activityDesc,roles[r].role);
-								}
+							if(plats['jxservice']){
+								var uri = _jx.getInvitationURI(r);
+								_jm.inviteServiceForRole(uri, _activityDesc,r);
 							}
 						}
 					}
@@ -238,16 +236,10 @@ var JunctionMaker = function()
 								 // TODO: AcSpec should be { roles: { "player": { ... } } }
 				var url='';
 				if (role && _activityDesc.roles) {
-					for (i=0;i<_activityDesc.roles.length;i++) {
-						if (_activityDesc.roles[i].role==role) {
-							var plat=_activityDesc.roles[i].platforms;
-							for (j=0;j<plat.length;j++) {
-								if (plat[j].platform=='web') {
-									url=plat[j].url.toString();
-									break;
-								}
-							}
-							break;
+					if (_activityDesc.roles[role]) {
+						var plat=_activityDesc.roles[role].platforms;
+						if (plat["web"]) {
+							url = plat["web"].url.toString();
 						}
 					}
 					if (url=='') url=document.location.toString(); // return false?
@@ -281,8 +273,6 @@ var JunctionMaker = function()
 					size = '250x250';
 				}
 
-				//return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent('{jxref:"'+url+'"}');
-				//return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(JSON.stringify(content));
 				return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(url);
 				
 			  },
@@ -390,36 +380,27 @@ var JunctionMaker = function()
 				}
 
 				, inviteServiceForRole: function(uri, ad, role) {
-						if (role == '' || !ad.roles) return;
-						for (i=0;i<ad.roles.length;i++) {
-							if (ad.roles[i].role==role) { 
-								platforms = ad.roles[i].platforms;
-								for (j=0;j<platforms.length;j++){
-									if (platforms[j].platform=='jxservice') {
-										actor = {
-												serviceName: platforms[j].serviceName,
-												onActivityJoin:
-													function() {
-														var invite = {activity: uri,
-															      serviceName: this.serviceName
-															};
-														alert('going');
-														this.junction.sendMessageToSession(invite);
-													}
-											}
+					if (role == '' || !ad.roles || !ad.roles[role]) return;
+					var plat = ad.roles[role].platforms;
+					if (!plat || !plat['jxservice']) return;
 
-									var remoteURI = 'junction://';
-									if (platforms[j].switchboard) remoteURI += platforms[j].switchboard;
-									else remoteURI += parseUri(uri).host;
-									remoteURI += '/jxservice';
-
-										JunctionMaker.getInstance().newJunction(remoteURI, actor);
-									}
-								}
+					plat = plat['jxservice'];
+					actor = {
+						serviceName: plat.serviceName,
+						onActivityJoin:
+							function() {
+								var invite = {activity: uri,
+									      serviceName: this.serviceName
+								};
+								this.sendMessageToSession(invite);
 							}
-						}
-					}
-	
+						};
+					var remoteURI = 'junction://';
+					if (plat.switchboard) remoteURI += plat.switchboard;
+					else remoteURI += parseUri(uri).host;
+					remoteURI += '/jxservice';
+					JunctionMaker.getInstance().newJunction(remoteURI, actor);
+				}
 				, inviteActorService: function(uri) {
 					this.activityDescriptionCallback(uri, inviteServiceForRole(uri,desc,role));
 				}
