@@ -13,7 +13,7 @@ var JunctionMaker = function()
 
 	function Junction(maker, activity,actor) {
 		var _jm = maker;
-		var _sessionID;
+		var _sessionID = false;
 		var _isActivityCreator = false;
 
 		var _activityDesc = activity;
@@ -38,7 +38,9 @@ var JunctionMaker = function()
 			if (activity.host) {
 				_hostURL = activity.host;
 			}
-		} else {
+		}
+
+		if (!_sessionID) {
 			_sessionID = randomUUID(); 
 			_isActivityCreator = true;
 		}
