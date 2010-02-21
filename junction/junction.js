@@ -388,12 +388,14 @@ var JunctionMaker = function()
 
 					plat = plat['jxservice'];
 					actor = {
-						serviceName: plat.serviceName,
+						mRequest: plat,
 						onActivityJoin:
 							function() {
-								var invite = {activity: uri,
-									      serviceName: this.serviceName
-								};
+								var invite = {activity: uri};
+								if (this.mRequest.serviceName)
+									invite.serviceName = this.mRequest.serviceName;
+								if (this.mRequest.jar)
+									invite.jar = this.mRequest.jar;
 								this.sendMessageToSession(invite);
 							}
 						};
