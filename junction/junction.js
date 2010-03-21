@@ -383,20 +383,23 @@ var JunctionMaker = function()
 
 				, inviteServiceForRole: function(uri, ad, role) {
 					if (role == '' || !ad.roles || !ad.roles[role]) return;
-					var plat = ad.roles[role].platforms;
-					if (!plat || !plat['jxservice']) return;
+					var rolespec = ad.roles[role];
+					if (!rolespec) return false;
 
-					plat = plat['jxservice'];
 					actor = {
 						mRequest: plat,
 						onActivityJoin:
 							function() {
-								var invite = {activity: uri};
-								if (this.mRequest.serviceName)
-									invite.serviceName = this.mRequest.serviceName;
-								if (this.mRequest.jar)
-									invite.jar = this.mRequest.jar;
+								var invite = {action:"cast",activity: uri};
+								invite.spec = rolespec;
+								invite.role = role;
+
 								this.sendMessageToSession(invite);
+								var scopedActor=this;
+								var f = function() {
+								  scopedActor.leave();
+								}
+								setTimeout(f,500);
 							}
 						};
 					var remoteURI = 'junction://';
@@ -405,8 +408,29 @@ var JunctionMaker = function()
 					remoteURI += '/jxservice';
 					JunctionMaker.getInstance().newJunction(remoteURI, actor);
 				}
-				, inviteActorService: function(uri) {
-					this.activityDescriptionCallback(uri, inviteServiceForRole(uri,desc,role));
+					// TODO: Just pass directorURI and activityURI
+					// send: {action:cast,activity:uri}
+					// have the rest looked up by the other director
+				, castActor: function(directorURI, activityURI) {
+					this.activityDescriptionCallback(activityURI, 
+						function(ad){
+						  if (role == '' || !ad.roles || !ad.roles[role]) return false;
+						  var rolespec = ad.roles[role];
+						  actor = { 
+						    onActivityJoin:
+						      function() {
+							var invite = {action:"cast",activity:activityURI};
+							this.sendMessageToSession(invite);
+							var scopedActor=this;
+							var f = function() {
+							  scopedActor.leave();
+							}
+							setTimeout(f,500);
+						      }
+						  };
+						  
+						  JunctionMaker.getInstance().newJunction(directorURI,actor);
+						});
 				}
 			};
 		}
