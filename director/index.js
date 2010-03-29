@@ -73,5 +73,6 @@ $(function() {
   size=400;
   $('#qr').attr('src',jx.getInvitationQR('inviter',size));
   $('#userURI').css('width',size);
-  $('#userURI').val(jx.getInvitationURI('inviter'));
+  $('#uribar').html(jx.getInvitationURI());
+  $('#userURI').val('junction://');
 });
