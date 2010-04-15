@@ -11,6 +11,36 @@ var JunctionMaker = function()
 		return connection;
 	}
 
+	function getInvitationFromRequest() {
+		var query = parseUri(window.location).query;
+		if ((i = query.indexOf('jxinvite=')) < 0) {
+			return false;
+		}
+
+		var vite = query.substring(i+9);
+
+		if ((i = vite.indexOf('&')) >= 0) {
+			vite = vite.substring(0,i);
+		}
+		vite = unescape(vite);
+
+		if ((i = vite.substring('junction://'))<0) {
+			return false;
+		}
+		// TODO: hack
+
+		vite = vite.replace("%3","=");
+		var query = parseUri(vite);
+
+		var retval = {"uri": vite, "host" : query.host};
+		retval.session = query.path.substring(1);
+
+		if (query.queryKey["role"]) {
+			retval.role = query.queryKey["role"];
+		}
+		return retval;
+	}
+
 	function Junction(maker, activity,actor) {
 		var _jm = maker;
 		var _sessionID = false;
@@ -18,19 +48,12 @@ var JunctionMaker = function()
 
 		var _activityDesc = activity;
 
-		var query = parseUri(window.location).query;
-		if ((i = query.indexOf('jxsessionid=')) >= 0) {
-			_sessionID = query.substring(i+12);
-			if ((i=_sessionID.indexOf('&')) >= 0) {
-				_sessionID = _sessionID.substring(0,i);
-			}
-			if ((i = query.indexOf('jxswitchboard=')) >= 0) {
-				_hostURL = query.substring(i+14);
-				if ((i=_hostURL.indexOf('&')) >= 0) {
-					_hostURL = _hostURL.substring(0,i);
-				}
-			}
+		var uriInvite = getInvitationFromRequest();
+		if (uriInvite) {
+			_sessionID = uriInvite.session;
+			_hostURL = uriInvite.host;
 		}
+		
 		else if (activity) {
 			if (activity.sessionID) {
 				_sessionID = activity.sessionID;
@@ -248,7 +271,12 @@ var JunctionMaker = function()
 				} else {
 					url=document.location.toString();
 				}
-				var params = 'jxsessionid='+_sessionID+'&jxswitchboard='+_hostURL;
+				//var params = 'jxsessionid='+_sessionID+'&jxswitchboard='+_hostURL;
+				if ((i = url.indexOf("jxinvite=")) >= 0) {
+					url = url.substring(0,i-1);
+				}
+				var vite = 'junction://'+_hostURL+'/'+_sessionID+'?role='+role;
+				var params = 'jxinvite='+escape(vite);
 				if (url.indexOf('?')>0) {
 					return url + '&' + params;
 				} else {
@@ -281,7 +309,7 @@ var JunctionMaker = function()
 
 			  getActorsForRole : function() { },
 			  getRoles : function() { },
-			  disconnect : function() { _xmppConnection.disconnect(); },
+			  disconnect : function() { _xmppConnection.disconnect(); }
 			};
 		return _jx;
 
@@ -380,6 +408,23 @@ var JunctionMaker = function()
 						}
 					});
 				}
+
+				, castActivity: function(activity,cast, defaultRole) {
+					// TODO: auto-assign roles
+					// TODO: onCreate, make sure bots are requested
+					var invite = getInvitationFromRequest();
+					if (invite) {
+						if (invite.role) {
+							return this.newJunction(invite.uri,cast[invite.role]);
+						} else {
+							// TODO: better detection
+							return this.newJunction(invite, cast[defaultRole]);
+						}
+					} else {
+						return this.newJunction(activity, cast[defaultRole])
+					}
+ 				}
+
 
 				, inviteServiceForRole: function(uri, ad, role) {
 					if (role == '' || !ad.roles || !ad.roles[role]) return;
