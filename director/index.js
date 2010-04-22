@@ -14,10 +14,9 @@ $(function() {
 
 
   // activity can be left blank, if you don't need any auto-code downloading.
-  var activity = {
-		ad: "edu.stanford.junction.director"
-		//roles: [ { role: "inviter", platforms: [ {platform: "web", url: "http://prpl.stanford.edu/junction/test"} ] } ]
-		};
+  var activity = { ad: "edu.stanford.junction.director", friendlyName: "Activity Director" };
+  //activity.sessionID='80339570-2B87-494A-870C-50269C13693C';
+
   var actor = {
 	          roles: ['director']
 		, onMessageReceived: function(msg) {
@@ -30,21 +29,25 @@ $(function() {
 				}
 			}
 		 }
-
-
-
 		};
+
+  function openURL(url) {
+    //window.open(url);
+    window.location=url;
+  }
+
 
   function handleURI(uri) {
     var parsed = parseUri(uri);
     var session = parsed.path.substring(1);
     var switchboard = parsed.host;
     if (uri.substring(0,4) == 'http') {
-	window.open(uri);
+	openURL(uri);
 	return;
     }
+
     if (uri.substring(0,11) == 'junction://')
-	jm.activityDescriptionCallback(uri,function(ad){
+	jm.activityScriptCallback(uri,function(ad){
 		var role = '';
 		if ((d = uri.indexOf('role=')) >= 0) {
 			role = uri.substring(d+5);
@@ -62,7 +65,7 @@ $(function() {
 					launch += '?';
 				}
 				launch += 'jxinvite='+escape(uri);
-				window.open(launch);
+				openURL(launch);
 			}
 	});
  }
