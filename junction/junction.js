@@ -170,7 +170,7 @@ var JunctionMaker = function()
 
 						if ((type == "groupchat" || type == "chat") && body) {
 							try {
-								var content = JSON.parse(body.nodeValue);
+								var content = JSON.parse(body.wholeText);
 								if (content.jx && content.jx.targetRole) {
 									if (!actor.roles) {
 										return true;
@@ -361,8 +361,8 @@ var JunctionMaker = function()
 					}
 				}
 
-				// must use a callback since javascript is asynchronous
-				, activityDescriptionCallback: function(uri, cb) {
+				// use asynchronous callback
+				, activityScriptCallback: function(uri, cb) {
 					var parsed = parseUri(uri);
 					var switchboard = parsed.host;
 					var sessionID = parsed.path.substring(1);
@@ -393,18 +393,15 @@ var JunctionMaker = function()
 					connection.connect(_jid,_pw, function(status){
 						if (status == Strophe.Status.CONNECTED) {
 							// get room info for sessionID
-							connection.send(
-							$iq({to: _room + "@" + _component, type: 'get'})
-							  .c("query", {xmlns: "http://jabber.org/protocol/disco#info"}).tree());
-
-
 							connection.addHandler(getInfo, 
 								'http://jabber.org/protocol/disco#info', 
 								null,
 								null,null,null); 
 
 					
-
+							connection.send(
+							  $iq({to: _room + "@" + _component, type: 'get'})
+							  .c("query", {xmlns: "http://jabber.org/protocol/disco#info"}).tree());
 						}
 					});
 				}
