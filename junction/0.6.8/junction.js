@@ -1,6 +1,15 @@
-function _JX(){ 
+function _JX(config){ 
 	// See end of file for Module instantiation.
-
+	
+	var _config = false;
+	if (config) {
+		if (typeof(config) == "string") {
+			_config = { host: config };
+		} else {
+			_config = config;
+		}
+	}
+	
 	/**
 	 * Create a new Junction instance.
 	 * TODO: document the necessary properties of activity and actor..
@@ -36,6 +45,11 @@ function _JX(){
 		if (!_sessionID) {
 			_sessionID = randomUUID();
 			_isActivityCreator = true;
+		}
+		if (!_hostURL) {
+			if (_config.host) {
+				_hostURL = _config.host;
+			}
 		}
 
 		var _actorID = randomUUID();
@@ -984,3 +998,4 @@ function deepObjCopy (dupeObj) {
 
 
 var JX = new _JX();
+JX.getInstance = function(config) { return new _JX(config); };
