@@ -1,25 +1,30 @@
 A quickstart example for using JSJunction:
 
-&lt;html&gt;
-  &lt;head&gt;
-    &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"&gt;&lt;/script&gt;   
-    &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"&gt;&lt;/script&gt;    
+<html>
+  <head>
+    <script type="text/javascript" 
+            src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>   
+    <script type="text/javascript" 
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>    
 
-    &lt;script language='javascript' type='text/javascript' src='http://openjunction.github.com/JSJunction/json2.js'&gt;&lt;/script&gt;
-    &lt;script language='javascript' type='text/javascript' src='http://openjunction.github.com/JSJunction/strophejs/1.0.1/strophe.js'&gt;&lt;/script&gt;
-    &lt;script language='javascript' type='text/javascript' src='http://openjunction.github.com/JSJunction/junction/0.6.8/junction.js'&gt;&lt;/script&gt;
+    <script language='javascript' type='text/javascript' 
+            src='http://openjunction.github.com/JSJunction/json2.js'></script>
+    <script language='javascript' type='text/javascript' 
+            src='http://openjunction.github.com/JSJunction/strophejs/1.0.1/strophe.js'></script>
+    <script language='javascript' type='text/javascript' 
+            src='http://openjunction.github.com/JSJunction/junction/0.6.8/junction.js'></script>
     
-    &lt;script type="text/javascript"&gt;
+    <script type="text/javascript">
 
 var activity = {ad:"my.test.app"};
 var actor = {
     onMessageReceived: function(msg) { alert("got a message: " + msg.text); }
   , onActivityJoin: function() { alert("joined!"); this.sendMessageToSession({text: "first post!"}); }
 };
-JX.getInstance("openjunction.org").newJunction(activity,actor);
+JX.getInstance("sb.openjunction.org").newJunction(activity,actor);
 
-    &lt;/script&gt;    
-  &lt;/head&gt;
-  &lt;body&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
+    </script>    
+  </head>
+  <body>
+  </body>
+</html>
