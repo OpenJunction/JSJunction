@@ -72,7 +72,7 @@ function _JX(config){
 				_hostURL = _config.host;
 			}
 		}
-
+		
                 if (!inviteInURL && _config.autorefresh) {
                   var uri = "junction://" + _hostURL + "/" + _sessionID;
                   var url = getPageWithURI(uri);
@@ -81,7 +81,6 @@ function _JX(config){
 		var _actorID = randomUUID();
 		
 		if (typeof(actor) != "object") {
-		
 		  if (typeof(actor) == "undefined") {
 		    if (_role) {
 		      actor = _role;
@@ -122,7 +121,7 @@ function _JX(config){
 	};
 	
 	this.getThisPlatformType = function() {
-	  var ua = navigator.userAgent;
+	  var ua = navigator.userAgent.toLowerCase();
 	  if (ua.indexOf("mobile") > 0) return "phone";
 	  return "pc";
 	}
@@ -339,9 +338,14 @@ function _JX(config){
 				if (arguments[0]) {
 					params["role"] = arguments[0];
 				}
+				
 				this.extrasDirector.updateInvitationParameters(params);
+				var args = '';
 				for(var name in params){
-					url += "&" + name + "=" + params[name];
+					args += "&" + name + "=" + params[name];
+				}
+				if (args.length > 0){
+				  url += "?" + args.substr(1);
 				}
 				return url;
 			},
@@ -354,13 +358,16 @@ function _JX(config){
 						var plat=this.activityDesc.roles[role].platforms;
 						if (plat["web"]) {
 							url = plat["web"].url.toString();
+							if (url.indexOf("?") > 0) {
+							  url = url.substr(0,url.indexOf("?"));
+							}
 						}
 					}
 					if (url=='') url=document.location.toString(); // return false?
 				} else {
 					url=document.location.toString();
 				}
-				var params = 'jxuri=' + encodeURIComponent(this.getInvitationURI());
+				var params = 'jxuri=' + encodeURIComponent(this.getInvitationURI(role));
 				if (url.indexOf('?')>0) {
 					return url + '&' + params;
 				} else {
@@ -408,8 +415,12 @@ function _JX(config){
 
 				// Are we the owner of this room?
 				if (type == null && from == this.actorID) {
-
-					var roomdesc = JSON.stringify(this.activityDesc);
+					var roomdesc = "";
+					try {
+					  roomdesc = JSON.stringify(this.activityDesc);
+					} catch (e) {
+					  this.logError(e);
+					}
 
 					// Unlock room
 					var form = $iq({to: this.MUC_ROOM + "@" + this.MUC_COMPONENT,type: 'set'})
