@@ -1,11 +1,12 @@
 function _JX(config){ 
 	// See end of file for Module instantiation.
 	
-	var _config = false;
+	var _config = { autorefresh: true };
 	if (config) {
 		if (typeof(config) == "string") {
-			_config = { host: config };
+			_config.host = config;
 		} else {
+		        // TODO: extend
 			_config = config;
 		}
 	}
@@ -20,19 +21,20 @@ function _JX(config){
 		var _isActivityCreator = false;
 		var query = parseUri(window.location).query;
 		var i;
-
-		if ((i = query.indexOf('jxsessionid=')) >= 0) {
-			_sessionID = query.substring(i+12);
-			if ((i=_sessionID.indexOf('&')) >= 0) {
-				_sessionID = _sessionID.substring(0,i);
-			}
-			if ((i = query.indexOf('jxswitchboard=')) >= 0) {
-				_hostURL = query.substring(i+14);
-				if ((i=_hostURL.indexOf('&')) >= 0) {
-					_hostURL = _hostURL.substring(0,i);
-				}
-			}
-		}
+                var inviteInURL = false;
+                
+                
+                if ((i = query.indexOf('jxuri=')) >= 0) {
+                  inviteInURL = true;
+                  var invite = query.substr(i+6);
+                  if ((i = invite.indexOf('&')) >= 0) {
+                    invite = invite.substr(0,i);
+                  }
+                  invite = decodeURIComponent(invite);
+                  var parsed = parseUri(invite);
+                  _sessionID = parsed.path.substring(1);
+                  _hostURL = parsed.host;
+                }
 		else if (activity) {
 			if (activity.sessionID) {
 				_sessionID = activity.sessionID;
@@ -52,6 +54,11 @@ function _JX(config){
 			}
 		}
 
+                if (!inviteInURL && _config.autorefresh) {
+                  var uri = "junction://" + _hostURL + "/" + _sessionID;
+                  var url = getPageWithURI(uri);
+                  window.location = url;
+                }
 		var _actorID = randomUUID();
 
 		var _jx = new JX.Junction(actor, _actorID, activity, _sessionID, _hostURL, _isActivityCreator);
@@ -60,7 +67,17 @@ function _JX(config){
 
 	};
 
-
+        var getPageWithURI = function(uri) {
+          var url = window.location.toString();
+          if (url.indexOf("?") > 0) {
+            url += "&jxuri=" + encodeURIComponent(uri);
+          } else {
+            url += "?jxuri=" + encodeURIComponent(uri);
+          }
+          return url;
+        }
+        
+        
 	/**
 	 * Create and return a new BOSH connection to a remote XMPP host.
 	 */
@@ -289,7 +306,7 @@ function _JX(config){
 				} else {
 					url=document.location.toString();
 				}
-				var params = 'jxsessionid=' + this.sessionID + '&jxswitchboard=' + this.hostURL;
+				var params = 'jxuri=' + encodeURIComponent(this.getInvitationURI());
 				if (url.indexOf('?')>0) {
 					return url + '&' + params;
 				} else {
