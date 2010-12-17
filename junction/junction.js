@@ -1,6 +1,5 @@
 function _JX(config){ 
 	// See end of file for Module instantiation.
-	
 	var _config = { autorefresh: true };
 	if (config) {
 		if (typeof(config) == "string") {
@@ -11,6 +10,19 @@ function _JX(config){
 		}
 	}
 	
+	// TODO: make the logger more configurable
+	this.logError = function(msg) {
+   	  if(typeof console != 'undefined'){
+	    console.error(msg);
+	  }
+	}
+	
+	this.logInfo = function(msg) {
+	  if(typeof console != 'undefined'){
+	    console.info(msg);
+          }
+	}
+	
 	/**
 	 * Create a new Junction instance.
 	 * TODO: document the necessary properties of activity and actor..
@@ -18,6 +30,7 @@ function _JX(config){
 	this.newJunction = function(activity, actor) {
 		var _sessionID = null;
 		var _hostURL = null;
+		var _role = null;
 		var _isActivityCreator = false;
 		var query = parseUri(window.location).query;
 		var i;
@@ -34,6 +47,12 @@ function _JX(config){
                   var parsed = parseUri(invite);
                   _sessionID = parsed.path.substring(1);
                   _hostURL = parsed.host;
+                  if (parsed.queryKey.role) {
+                    _role = parsed.query.substr(parsed.query.indexOf("role=")+5);
+                    if ((i = _role.indexOf("&")) > 0) {
+                      _role = _role.substr(0,i);
+                    }
+                  }
                 }
 		else if (activity) {
 			if (activity.sessionID) {
@@ -60,7 +79,32 @@ function _JX(config){
                   window.location = url;
                 }
 		var _actorID = randomUUID();
+		
+		if (typeof(actor) != "object") {
+		
+		  if (typeof(actor) == "undefined") {
+		    if (_role) {
+		      actor = _role;
+		    } else if (activity.defaultRole) {
+		      actor = activity.defaultRole;
+		    }
+		  }
 
+		  if (typeof(actor) == "string") {
+		    // use role spec
+		    if (typeof(activity.roles[actor]) == "undefined") {
+		      this.logError("No specification for role " + actor);
+		      return false;
+		    }
+		    if (typeof(activity.roles[actor].platforms.web.code) != "undefined") {
+  		      actor = activity.roles[actor].platforms.web.code;
+  		    } else {
+  		      this.logError("No codebase found for " + actor);
+  		      return false;
+  		    }
+		  }
+		}
+		
 		var _jx = new JX.Junction(actor, _actorID, activity, _sessionID, _hostURL, _isActivityCreator);
 
 		return _jx;
@@ -162,18 +206,12 @@ function _JX(config){
 
 			},
 
-
-			// TODO: Make the logger configurable.
 			logInfo: function(msg){
-				if(typeof console != 'undefined'){
-					console.info(msg);
-				}
+				JX.logInfo(msg);
 			},
 			
 			logError: function(msg){
-				if(typeof console != 'undefined'){
-					console.error(msg);
-				}
+				JX.logError(msg);
 			},
 
 			registerExtra: function(extra) {
