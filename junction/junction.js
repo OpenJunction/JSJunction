@@ -86,7 +86,17 @@ function _JX(config){
 		    if (_role) {
 		      actor = _role;
 		    } else if (activity.defaultRole) {
-		      actor = activity.defaultRole;
+		      if (typeof(activity.defaultRole) == "string") {
+  		        actor = activity.defaultRole;
+  		      } else if (typeof(activity.defaultRole) == "object") {
+  		        var def = activity.defaultRole;
+  		        var plat = JX.getThisPlatformType();
+  		        if (def[plat]) {
+  		          actor = def[plat];
+  		        } else if (def["default"]) {
+  		          actor = def["default"];
+  		        }
+  		      }
 		    }
 		  }
 
@@ -110,6 +120,12 @@ function _JX(config){
 		return _jx;
 
 	};
+	
+	this.getThisPlatformType = function() {
+	  var ua = navigator.userAgent;
+	  if (ua.indexOf("mobile") > 0) return "phone";
+	  return "pc";
+	}
 
         var getPageWithURI = function(uri) {
           var url = window.location.toString();
