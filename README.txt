@@ -3,8 +3,6 @@ A quickstart example for using JSJunction:
 <html>
   <head>
     <script type="text/javascript" 
-            src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>   
-    <script type="text/javascript" 
             src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>    
 
     <script language='javascript' type='text/javascript' 
