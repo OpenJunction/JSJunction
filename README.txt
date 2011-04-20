@@ -10,7 +10,7 @@ A quickstart example for using JSJunction:
     <script language='javascript' type='text/javascript' 
             src='http://openjunction.github.com/JSJunction/strophejs/1.0.1/strophe.js'></script>
     <script language='javascript' type='text/javascript' 
-            src='http://openjunction.github.com/JSJunction/junction/0.6.8/junction.js'></script>
+            src='http://openjunction.github.com/JSJunction/junction/0.7.0/junction.js'></script>
     
     <script type="text/javascript">
 
