@@ -399,6 +399,16 @@ function _JX(config){
 
 			},
 
+			getQRForWeb: function(size, role) {
+				var url = this.getInvitationForWeb(role);
+				if (!size) {
+					size = '250x250';
+				} else {
+					size = (size+'x'+size);
+				}
+				return 'http://chart.apis.google.com/chart?cht=qr&chs='+size+'&chl='+encodeURIComponent(url);			
+			},
+
 			getActorsForRole: function() {},
 
 			getRoles:  function() {},
