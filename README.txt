@@ -19,7 +19,7 @@ var actor = {
     onMessageReceived: function(msg) { alert("got a message: " + msg.text); }
   , onActivityJoin: function() { alert("joined!"); this.sendMessageToSession({text: "first post!"}); }
 };
-JX.getInstance("sb.openjunction.org").newJunction(activity,actor);
+JX.getInstance("prpl.stanford.edu").newJunction(activity,actor);
 
     </script>    
   </head>

@@ -493,6 +493,11 @@ function _JX(config){
 					from = from.substring(i+1);
 				}
 				var type = msg.getAttribute('type');
+				if (type == "error") {
+					console.info("Error: " + msg);
+					return;
+				}
+
 				var body = msg.getElementsByTagName("body")[0].childNodes[0];
 
 				var jxheader = new Object();
